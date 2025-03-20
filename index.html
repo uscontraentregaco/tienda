@@ -1,865 +1,308 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
-    <meta charset="utf-8">
-    <title>United States - Contraentrega</title>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="Contraentrega. All rights reserved." name="keywords">
-    <meta content="Buy now, pay later with Contraentrega" name="description">
-
-    <!-- Favicon -->
-    <link href="img/favicon.ico" rel="icon">
-
-    <!-- Google Web Fonts -->
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">  
-
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
-
-    <!-- Libraries Stylesheet -->
-    <link href="lib/animate/animate.min.css" rel="stylesheet">
-    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-
-    <!-- Customized Bootstrap Stylesheet -->
-    <link href="css/style.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contraentrega Colombia</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #f8f9fa; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { background: white; width: 90%; max-width: 1200px; padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); overflow-x: hidden; }
+        .table-container { width: 100%; overflow-x: auto; margin: 20px 0; display: none; }
+        .product-table { width: 100%; min-width: 800px; border-collapse: collapse; }
+        .product-table th, .product-table td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+        .product-table th { background: #2c3e50; color: white; }
+        .quantity-controls { display: flex; align-items: center; gap: 8px; }
+        .quantity-controls button { padding: 8px 15px; border: 1px solid #ddd; background: #f8f9fa; cursor: pointer; }
+        .checkout-section { background: #f8f9fa; padding: 20px; margin-top: 20px; border-radius: 8px; }
+        .search-container { margin: 15px 0; }
+        #searchInput { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 25px; }
+        .delivery-form { margin-top: 15px; }
+        .delivery-form input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; }
+        .payment-instructions { background: #e3f2fd; padding: 15px; margin: 15px 0; border-radius: 8px; }
+        .contact-buttons { display: flex; gap: 10px; margin-top: 10px; }
+        .contact-buttons a { text-decoration: none; color: white; padding: 10px 20px; border-radius: 5px; flex: 1; text-align: center; }
+        .contact-buttons .whatsapp { background: #25D366; }
+        .contact-buttons .call { background: #34B7F1; }
+        .local-name { color: #2c3e50; font-weight: bold; text-decoration: underline; cursor: pointer; }
+        .image-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { max-width: 90%; max-height: 90%; position: relative; }
+        .close-modal { position: absolute; top: -25px; right: -25px; color: white; font-size: 30px; cursor: pointer; }
+        footer { text-align: center; margin-top: 30px; padding: 20px; color: #666; font-size: 0.9em; }
+        footer a { color: #2c3e50; text-decoration: none; margin: 0 10px; }
+        footer a:hover { text-decoration: underline; }
+        .success-message { background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-top: 15px; display: none; }
+    </style>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
 </head>
-
 <body>
-    <!-- Topbar Start -->
-    <div class="container-fluid">
-        <div class="row bg-secondary py-1 px-xl-5">
-            <div class="col-lg-6 d-none d-lg-block">
-                <div class="d-inline-flex align-items-center h-100">
-                    <a class="text-body mr-3" href="terms.html">Terms</a>
+    <div class="container">
+        <header>
+            <h1>Contraentrega CO</h1>
+            <p><a href="https://www.google.com/maps?q=3.4516,-76.5320" target="_blank" style="text-decoration: none; color: inherit;">Contraentrega Colombia ⚡</a></p>
+            <div class="contact-buttons">
+                <a href="https://wa.me/573215340988" class="whatsapp">WhatsApp</a>
+                <a href="tel:+573215340988" class="call">Llamar</a>
+            </div>
+        </header>
+
+        <div class="checkout-section">
+            <div id="orderSummary"></div>
+            <div class="delivery-options">
+                <label><input type="radio" name="delivery" value="pickup" checked> Recoger en un punto Contraentrega aliado</label>
+                <label><input type="radio" name="delivery" value="delivery"> Servicio a domicilio</label>
+            </div>
+            <form id="deliveryForm" class="delivery-form">
+                <input type="text" id="name" name="name" placeholder="Nombre completo" required>
+                <input type="tel" id="phone" name="phone" placeholder="Teléfono" required>
+                <input type="email" id="email" name="email" placeholder="Correo electrónico" required>
+                <div id="addressField" style="display: none;">
+                    <input type="text" id="address" name="address" placeholder="Dirección">
                 </div>
-            </div>
-            <div class="col-lg-6 text-center text-lg-right">
-                <div class="d-inline-flex align-items-center">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">ERP</button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <button class="dropdown-item" type="button">Sign In</button>
-                            <button class="dropdown-item" type="button">Sign Up</button>
-                        </div>
-                    </div>
+                <input type="hidden" id="orderDetails" name="orderDetails">
+                <div style="margin-top: 15px;">
+                    <button type="button" onclick="handleSubmit()">Cotizar</button>
+                    <button type="button" onclick="handlePayment()" style="background: #4CAF50; color: white;">Pagar con Lightning</button>
                 </div>
-                <div class="d-inline-flex align-items-center d-block d-lg-none">
-                    <a href="" class="btn px-0 ml-2">
-                        <i class="fas fa-map-marker text-primary"></i>
-                        <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">+1000</span>
-                    </a>
-                </div>
+            </form>
+            <div id="successMessage" class="success-message">¡Formulario enviado correctamente!</div>
+            <div id="paymentInstructions" class="payment-instructions" style="display: none;">
+                <p>✅ Total: <strong id="totalCOP"></strong> COP</p>
+                <p>🔗 Dirección Lightning: <strong>contraentregaco@coinos.io</strong></p>
+                <p>📝 Referencia: <strong id="orderRef"></strong></p>
+                <p>⚠️ Al pagar, ingrese manualmente:</p>
+                <ul>
+                    <li>Monto exacto mostrado</li>
+                    <li>Referencia en el campo de mensaje/memo</li>
+                </ul>
+                <div class="qr-code" id="qrCode"></div>
             </div>
         </div>
-        <div class="row align-items-center bg-light py-3 px-xl-5 d-none d-lg-flex">
-            <div class="col-lg-4">
-                <a href="" class="text-decoration-none">
-                    <span class="h1 text-uppercase text-primary bg-dark px-2">United States</span>
-                    <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">Contraentrega</span>
-                </a>
-            </div>
-            <div class="col-lg-4 col-6 text-left">
-                <form action="">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Buscar">
-                        <div class="input-group-append">
-                            <span class="input-group-text bg-transparent text-primary">
-                                <i class="fa fa-search"></i>
-                            </span>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="col-lg-4 col-6 text-right">
-                <p class="m-0">Support</p>
-                <h5 class="m-0">info@contraentregaco.com</h5>
-            </div>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Buscar Productos y/o Servicios Contraentrega">
         </div>
+
+        <div class="table-container">
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                        <th>Inventario</th>
+                    </tr>
+                </thead>
+                <tbody id="productsBody"></tbody>
+            </table>
+        </div>
+
+        <footer>
+            <div id="colombiaTime" style="margin-bottom: 10px;">
+                <span id="currentDate"></span> - Hora Colombia: <span id="currentTime"></span>
+            </div>
+            <div style="margin-bottom: 5px;">Contraentrega © Todos los derechos reservados</div>
+            <div style="margin-top: 10px;">
+                <a href="contactos.html" style="color: #2c3e50; text-decoration: none; margin: 0 10px;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Comunidad</a>
+                <a href="recargar.html" target="_blank" style="color: #4CAF50; text-decoration: none; margin: 0 10px;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Recargar saldo Lightning con COP</a>
+            </div>
+        </footer>
     </div>
-    <!-- Topbar End -->
 
-
-    <!-- Navbar Start -->
-    <div class="container-fluid bg-dark mb-30">
-        <div class="row px-xl-5">
-            <div class="col-lg-3 d-none d-lg-block">
-                <a class="btn d-flex align-items-center justify-content-between bg-primary w-100" data-toggle="collapse" href="#navbar-vertical" style="height: 65px; padding: 0 30px;">
-                    <h6 class="text-dark m-0"><i class="fa fa-bars mr-2"></i>Catalogs</h6>
-                    <i class="fa fa-angle-down text-dark"></i>
-                </a>
-                <nav class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light" id="navbar-vertical" style="width: calc(100% - 30px); z-index: 999;">
-                    <div class="navbar-nav w-100">
-                        <div class="nav-item dropdown dropright">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">24H <i class="fa fa-angle-right float-right mt-1"></i></a>
-                            <div class="dropdown-menu position-absolute rounded-0 border-0 m-0">
-                                <a href="comprar.html" class="dropdown-item">All</a>
-                            </div>
-                    </div>
-                </nav>
-            </div>
-            <div class="col-lg-9">
-                <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 py-lg-0 px-0">
-                    <a href="index.html" class="text-decoration-none d-block d-lg-none">
-                        <span class="h1 text-uppercase text-dark bg-light px-2">United States</span>
-                        <span class="h1 text-uppercase text-light bg-primary px-2 ml-n1">Contraentrega</span>
-                    </a>
-                    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-                        <div class="navbar-nav mr-auto py-0">
-                            <a href="index.html" class="nav-item nav-link active">Buy</a>
-                            <a href="sell.html" class="nav-item nav-link">Sell</a>
-                        </div>
-                        <div class="navbar-nav ml-auto py-0 d-none d-lg-block">
-                            <a href="" class="btn px-0">
-                                <i class="fas fa-map-marker text-primary"></i>
-                                <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">+1000</span>
-                            </a>
-                        </div>
-                    </div>
-                </nav>
-            </div>
-        </div>
+    <div class="image-modal" onclick="closeImageModal()">
+        <span class="close-modal" onclick="closeImageModal(event)">&times;</span>
+        <img class="modal-content" id="expandedImage">
     </div>
-    <!-- Navbar End -->
 
+    <script>
+        const products = [
+            { id: 1, sku: "@leticiaamazonas1", name: "Local Contraentrega Leticia Amazonas", price: 10000, inventory: 1000, url: "https://example.com/leticia" },
+            { id: 2, sku: "@medellinantioquia2", name: "Local Contraentrega Medellín Antioquia", price: 10000, inventory: 1000, url: "https://example.com/medellin" },
+            { id: 3, sku: "@medellinantioquia3", name: "Local Contraentrega Medellín Antioquia", price: 10000, inventory: 1000, url: "https://example.com/medellin2" } , { id: 4, sku: "@leticiaamazonas1", name: "Local Contraentrega Leticia Amazonas", price: 10000, inventory: 1000, url: "https://example.com/leticia" } , { id: 5, sku: "@leticiaamazonas1", name: "Local Contraentrega Leticia Amazonas", price: 10000, inventory: 1000, url: "https://example.com/leticia" }
+        ];
+        
+        let cart = {};
+        let currentOrderId = '';
 
-    <!-- Categories Start -->
-    <div class="container-fluid pt-5">
-        <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">States</span></h2>
-        <div class="row px-xl-5 pb-3">
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Alabama.html">
-                    <div class="cat-item d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-1.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Alabama</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Alaska.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-2.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Alaska</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Arizona.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Arizona</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Arkansas.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-4.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Arkansas</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="California.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-4.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>California</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Colorado.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Colorado</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Connecticut.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-2.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Connecticut</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Delaware.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-1.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Delaware</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Florida.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-2.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Florida</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Georgia.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-1.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Georgia</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Hawaii.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-4.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Hawaii</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Idaho.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Idaho</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Illinois.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Illinois</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Indiana.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Indiana</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Iowa.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Iowa</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Kansas.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Kansas</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Kentucky.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Kentucky</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Louisiana.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Louisiana</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Maine.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Maine</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Maryland.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Maryland</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Massachusetts.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Massachusetts</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Michigan.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Michigan</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Minnesota.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Minnesota</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Mississippi.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Mississippi</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Missouri.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Missouri</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Montana.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Montana</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Nebraska.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Nebraska</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Nevada.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Nevada</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="New Hampshire.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>New Hampshire</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="New Jersey.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>New Jersey</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="New Mexico.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>New Mexico</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="New York.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>New York</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="North Carolina.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>North Carolina</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="North Dakota.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>North Dakota</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Ohio.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Ohio</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Oklahoma.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Oklahoma</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Oregon.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Oregon</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Pennsylvania.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Pennsylvania</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Rhode Island.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Rhode Island</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="South Carolina.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>South Carolina</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="South Dakota.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>South Dakota</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Tennessee.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Tennessee</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Texas.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Texas</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Utah.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Utah</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Vermont.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Vermont</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Virginia.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Virginia</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Washington.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Washington</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="West Virginia.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>West Virginia</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Wisconsin.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Wisconsin</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
-                <a class="text-decoration-none" href="Wyoming.html">
-                    <div class="cat-item img-zoom d-flex align-items-center mb-4">
-                        <div class="overflow-hidden" style="width: 100px; height: 100px;">
-                            <img class="img-fluid" src="img/cat-3.jpg" alt="">
-                        </div>
-                        <div class="flex-fill pl-3">
-                            <h6>Wyoming</h6>
-                            <small class="text-body">Contraentrega</small>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </div>
-    <!-- Categories End -->
+        function generateOrderId() {
+            return 'ORD-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+        }
 
-
-    <!-- Footer Start -->
-    <div class="container-fluid bg-dark text-secondary mt-5 pt-5">
-        <div class="row px-xl-5 pt-5">
-            <div class="col-lg-4 col-md-12 mb-5 pr-3 pr-xl-5">
-                <h5 class="text-secondary text-uppercase mb-4">United States Contraentrega</h5>
-                <p class="mb-4">¡Buy from your local Community! Instant delivery in the United States.</p>
-                <p class="mb-2"><i class="fa fa-map-marker-alt text-primary mr-3"></i>+ 1000 Points</p>
-                <p class="mb-2"><i class="fa fa-envelope text-primary mr-3"></i>info@contraentregaco.com</p>
-            </div>
-            <div class="col-lg-8 col-md-12">
-                <div class="row">
-                    <div class="col-md-4 mb-5">
-                        <h5 class="text-secondary text-uppercase mb-4">24H</h5>
-                        <div class="d-flex flex-column justify-content-start">
-                            <a class="text-secondary mb-2" href="index.html"><i class="fa fa-angle-right mr-2"></i>All</a>
+        function renderProducts(filteredProducts = products) {
+            const tbody = document.getElementById('productsBody');
+            tbody.innerHTML = filteredProducts.map(product => `
+                <tr>
+                    <td>${product.sku}</td>
+                    <td><a href="${product.url}" target="_blank" class="local-name">${product.name}</a></td>
+                    <td>$${product.price.toLocaleString()}</td>
+                    <td>
+                        <div class="quantity-controls">
+                            <button onclick="adjustQuantity(${product.id}, -1)">-</button>
+                            <span>${cart[product.id] || 0}</span>
+                            <button onclick="adjustQuantity(${product.id}, 1)">+</button>
                         </div>
-                    </div>
-                    <div class="col-md-4 mb-5">
-                        <h5 class="text-secondary text-uppercase mb-4">ERP</h5>
-                        <div class="d-flex flex-column justify-content-start">
-                            <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Sign In</a>
-                            <a class="text-secondary mb-2" href="#"><i class="fa fa-angle-right mr-2"></i>Sign Up</a>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-5">
-                        <h5 class="text-secondary text-uppercase mb-4">Socios</h5>
-                        <p>Join our community! Enter your email to receive exclusive news, promotions, and member benefits.</p>
-                        <form method="post" action="https://formspree.io/f/xovareae">
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Email">
-                                <div class="input-group-append">
-                                    <button class="btn btn-primary">Send</button>
-                                </div>
-                            </div>
-                        </form>
-                        <h6 class="text-secondary text-uppercase mt-4 mb-3">Community</h6>
-                        <div class="d-flex">
-                            <a class="btn btn-primary btn-square mr-2" href="https://www.facebook.com/groups/1605014103560077/?ref=share&mibextid=NSMWBT"><i class="fab fa-facebook-f"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row border-top mx-xl-5 py-4" style="border-color: rgba(256, 256, 256, .1) !important;">
-            <div class="col-md-6 px-xl-0">
-                <p class="mb-md-0 text-center text-md-left text-secondary">
-                    &copy; <a class="text-primary" href="https://contraentregaco.com">Contraentrega</a>. All rights reserved.
-                    <a class="text-primary" href="https://us.contraentregaco.com/terms.html">United States</a>
-                </p>
-            </div>
-            <div class="col-md-6 px-xl-0 text-center text-md-right">
-                <img class="img-fluid" src="img/payments.png" alt="">
-            </div>
-        </div>
-    </div>
-    <!-- Footer End -->
+                    </td>
+                    <td>${product.inventory}</td>
+                </tr>
+            `).join('');
+        }
 
+        function adjustQuantity(id, delta) {
+            const product = products.find(p => p.id === id);
+            cart[id] = Math.max(0, Math.min((cart[id] || 0) + delta, product.inventory));
+            renderProducts();
+            updateSummary();
+        }
 
-    <!-- Back to Top -->
-    <a href="#" class="btn btn-primary back-to-top"><i class="fa fa-angle-double-up"></i></a>
+        function updateSummary() {
+            document.getElementById('orderSummary').innerHTML = `Total: $${calculateTotal().toLocaleString()} COP`;
+        }
 
+        function calculateTotal() {
+            return Object.entries(cart).reduce((acc, [id, qty]) => acc + (products.find(p => p.id == id).price * qty), 0);
+        }
 
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
-    <script src="lib/easing/easing.min.js"></script>
-    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+        function handleSubmit() {
+            if (!validateForm()) return;
+            submitForm(false);
+        }
 
-    <!-- Contact Javascript File -->
-    <script src="mail/jqBootstrapValidation.min.js"></script>
-    <script src="mail/contact.js"></script>
+        function handlePayment() {
+            if (!validateForm()) return;
+            submitForm(true);
+        }
 
-    <!-- Template Javascript -->
-    <script src="js/main.js"></script>
+        function submitForm(isPayment) {
+            currentOrderId = generateOrderId();
+            const formData = new FormData(document.getElementById('deliveryForm'));
+            formData.append('orderDetails', JSON.stringify(cart));
+            formData.append('total', calculateTotal());
+            formData.append('orderId', currentOrderId);
+
+            fetch('https://formspree.io/f/meoaovqr', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    showSuccessMessage();
+                    if (isPayment) showPaymentInstructions();
+                } else {
+                    alert('Error al enviar: ' + response.status);
+                }
+            }).catch(error => {
+                alert('Error de conexión: ' + error.message);
+            });
+        }
+
+        function showSuccessMessage() {
+            document.getElementById('successMessage').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'none';
+            }, 5000);
+        }
+
+        function showPaymentInstructions() {
+            const total = calculateTotal();
+            document.getElementById('totalCOP').textContent = total.toLocaleString();
+            document.getElementById('orderRef').textContent = currentOrderId;
+            document.getElementById('paymentInstructions').style.display = 'block';
+            
+            if (document.getElementById('qrCode').innerHTML === '') {
+                new QRCode(document.getElementById('qrCode'), {
+                    text: 'lightning:contraentregaco@coinos.io',
+                    width: 128,
+                    height: 128
+                });
+            }
+        }
+
+        function validateForm() {
+            const total = calculateTotal();
+            const email = document.getElementById('email').value;
+            const deliveryMethod = document.querySelector('input[name="delivery"]:checked').value;
+            
+            if (total === 0) {
+                alert('Agrega productos al carrito');
+                return false;
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                alert('Email inválido');
+                return false;
+            }
+            if (deliveryMethod === 'delivery' && !document.getElementById('address').value.trim()) {
+                alert('Completa la dirección');
+                return false;
+            }
+            return true;
+        }
+
+        function showImage(src, event) {
+            event.preventDefault();
+            const modal = document.querySelector('.image-modal');
+            const modalImg = document.getElementById('expandedImage');
+            modal.style.display = 'flex';
+            modalImg.src = src;
+        }
+
+        function closeImageModal(event) {
+            if (event) event.stopPropagation();
+            document.querySelector('.image-modal').style.display = 'none';
+        }
+
+        document.querySelectorAll('input[name="delivery"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const showAddress = e.target.value === 'delivery';
+                document.getElementById('addressField').style.display = showAddress ? 'block' : 'none';
+                document.getElementById('address').required = showAddress;
+            });
+        });
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = products.filter(product => {
+                return product.sku.toLowerCase().includes(searchTerm) ||
+                       product.name.toLowerCase().includes(searchTerm) ||
+                       product.price.toString().includes(searchTerm) ||
+                       product.inventory.toString().includes(searchTerm);
+            });
+            
+            const tableContainer = document.querySelector('.table-container');
+            if (searchTerm.trim() !== '' && filtered.length > 0) {
+                tableContainer.style.display = 'block';
+            } else {
+                tableContainer.style.display = 'none';
+            }
+            
+            renderProducts(filtered);
+        });
+
+        function updateColombiaTime() {
+            const dateOptions = {
+                timeZone: 'America/Bogota',
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+            
+            const timeOptions = {
+                timeZone: 'America/Bogota',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+
+            const now = new Date();
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('es-CO', dateOptions);
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('es-CO', timeOptions);
+        }
+
+        setInterval(updateColombiaTime, 1000);
+        updateColombiaTime();
+        renderProducts();
+    </script>
 </body>
-
 </html>
