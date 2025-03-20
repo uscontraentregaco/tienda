@@ -1,1 +1,292 @@
-a
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .form-container {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .resultado {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+        }
+        .loan-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        .sats-calculo {
+            color: #2c3e50;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 12px;
+            background-color: #e8f4ff;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .payment-details {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
+        }
+        .alert {
+            display: none;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .timer {
+            font-weight: bold;
+            color: #d9534f;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="alert alert-success" id="successAlert">✅ Solicitud enviada! Confirma tu pago y envía el comprobante por WhatsApp</div>
+        <div class="alert alert-error" id="errorAlert">⚠️ Error al enviar. Intenta nuevamente o contacta por WhatsApp</div>
+        
+        <h2>Recarga Lightning Network</h2>
+        <div class="rate-info" id="rateStatus">Cargando tasa BTC/COP...</div>
+        
+        <form id="recargaForm" action="https://formspree.io/f/xnnpnobd" method="POST">
+            <div class="form-group">
+                <label>Correo electrónico:</label>
+                <input type="email" id="email" name="email" required placeholder="tucorreo@ejemplo.com">
+            </div>
+
+            <div class="form-group">
+                <label>Número de WhatsApp:</label>
+                <input type="tel" id="whatsapp" name="whatsapp" required placeholder="Ingresa tu número">
+            </div>
+
+            <div class="form-group">
+                <label>Dirección Lightning:</label>
+                <input type="text" id="lightning" name="lightning" required placeholder="Ingresa tu dirección">
+            </div>
+
+            <div class="form-group">
+                <label>Banco/Método:</label>
+                <select id="banco" name="banco" required onchange="mostrarDetallesPago()">
+                    <option value="">Seleccione...</option>
+                    <option>Nequi</option>
+                    <option>DaviPlata</option>
+                    <option>Bancolombia</option>
+                    <option>PSE</option>
+                    <option>Efectivo</option>
+                </select>
+            </div>
+
+            <div id="detallesPago" class="payment-details"></div>
+
+            <div class="form-group">
+                <label>Monto a recargar (COP):</label>
+                <input type="number" id="monto" name="monto" required oninput="calcularTotal()">
+            </div>
+
+            <div class="resultado">
+                <p>Comisión (5%): $<span id="comision">0</span></p>
+                <p>Total a pagar: $<span id="total">0</span></p>
+                <div class="sats-calculo">
+                    Recibirás aproximadamente: 
+                    <span id="sats">0</span> sats
+                    <div style="font-size: 0.9em; color: #666;">
+                        Tasa actual: 1 BTC = $<span id="btcRate">...</span> COP
+                    </div>
+                </div>
+                <p>Número de referencia: <strong id="referencia">---</strong></p>
+            </div>
+
+            <div class="loan-section">
+                <label>
+                    <input type="checkbox" id="prestamoCheck" name="prestamoCheck" onchange="togglePrestamo()"> ¿Solicitar préstamo?
+                </label>
+                <div id="prestamoFields" style="display: none;">
+                    <label>Monto del préstamo (COP):</label>
+                    <input type="number" id="montoPrestamo" name="montoPrestamo">
+                    <label>Semanas a pagar:</label>
+                    <input type="number" id="semanasPrestamo" name="semanasPrestamo" min="1" value="4">
+                    <p>Cuota semanal: $<span id="cuotaSemanal">0</span></p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <p>Instrucciones importantes:</p>
+                <ul>
+                    <li>Incluir la referencia en la transferencia</li>
+                    <li>Confirmar por WhatsApp: <a href="https://wa.me/573215340988">+57 3215340988</a></li>
+                    <li>Horario: 24/7</li>
+                </ul>
+            </div>
+
+            <button type="submit" id="submitButton">Enviar Solicitud</button>
+            <div class="timer" id="timer">Tiempo restante para pagar: 5:00</div>
+        </form>
+    </div>
+
+    <script>
+        let tasaBTC = 150000000;
+        const detallesPago = {
+            'Nequi': 'Número Nequi: 3215970535',
+            'DaviPlata': 'Número DaviPlata: 3215970535',
+            'Bancolombia': 'Cuenta de Ahorros: 912',
+            'PSE': 'Seleccione Bancolombia en PSE',
+            'Efectivo': 'Acercarse a punto de pago autorizado'
+        };
+
+        let timerInterval;
+        let timeLeft = 300;
+
+        async function actualizarTasaBTC() {
+            try {
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=cop');
+                const data = await response.json();
+                if(data.bitcoin?.cop) {
+                    tasaBTC = data.bitcoin.cop;
+                    document.getElementById('btcRate').textContent = tasaBTC.toLocaleString();
+                    document.getElementById('rateStatus').textContent = 'Tasa actualizada: ' + new Date().toLocaleTimeString();
+                    calcularTotal();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('rateStatus').textContent = '⚠️ Error actualizando tasa';
+            }
+        }
+
+        function mostrarDetallesPago() {
+            const banco = document.getElementById('banco').value;
+            const contenedor = document.getElementById('detallesPago');
+            contenedor.innerHTML = banco && detallesPago[banco] 
+                ? `<strong>Instrucciones para ${banco}:</strong><br>${detallesPago[banco]}`
+                : '';
+            contenedor.style.display = banco ? 'block' : 'none';
+        }
+
+        function calcularTotal() {
+            const monto = parseFloat(document.getElementById('monto').value) || 0;
+            const comision = monto * 0.05;
+            const total = monto + comision;
+            const sats = (monto / tasaBTC) * 100000000;
+            const referencia = 'REF-' + Math.floor(Math.random() * 1000000);
+
+            document.getElementById('comision').textContent = comision.toFixed(2);
+            document.getElementById('total').textContent = total.toFixed(2);
+            document.getElementById('sats').textContent = Math.floor(sats).toLocaleString();
+            document.getElementById('referencia').textContent = referencia;
+            calcularCuotaPrestamo();
+        }
+
+        function togglePrestamo() {
+            document.getElementById('prestamoFields').style.display = 
+                document.getElementById('prestamoCheck').checked ? 'block' : 'none';
+            calcularCuotaPrestamo();
+        }
+
+        function calcularCuotaPrestamo() {
+            if(document.getElementById('prestamoCheck').checked) {
+                const monto = parseFloat(document.getElementById('montoPrestamo').value) || 0;
+                const semanas = parseInt(document.getElementById('semanasPrestamo').value) || 1;
+                document.getElementById('cuotaSemanal').textContent = (monto / semanas).toFixed(2);
+            }
+        }
+
+        function startTimer() {
+            const timerElement = document.getElementById('timer');
+            const submitButton = document.getElementById('submitButton');
+
+            submitButton.disabled = true;
+            timerElement.style.display = 'block';
+
+            timerInterval = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerElement.textContent = `Tiempo restante para pagar: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerElement.textContent = 'Tiempo agotado. Debes enviar una nueva solicitud.';
+                    submitButton.disabled = false;
+                } else {
+                    timeLeft--;
+                }
+            }, 1000);
+        }
+
+        document.getElementById('recargaForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            document.getElementById('successAlert').style.display = 'block';
+            document.getElementById('errorAlert').style.display = 'none';
+
+            startTimer();
+
+            fetch(this.action, {
+                method: this.method,
+                body: new FormData(this),
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en el servidor');
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                document.getElementById('errorAlert').style.display = 'block';
+                document.getElementById('successAlert').style.display = 'none';
+            });
+        });
+
+        document.getElementById('montoPrestamo').addEventListener('input', calcularCuotaPrestamo);
+        document.getElementById('semanasPrestamo').addEventListener('input', calcularCuotaPrestamo);
+        document.getElementById('monto').addEventListener('focus', actualizarTasaBTC);
+        
+        actualizarTasaBTC();
+        setInterval(actualizarTasaBTC, 300000);
+    </script>
+</body>
+</html>
