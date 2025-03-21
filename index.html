@@ -29,14 +29,14 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         // Coordenadas de Estados Unidos (incluyendo Alaska)
-        const usCenter = [37.0902, -95.7129]; // Centro de Estados Unidos (continental)
+        const usCenter = [50, -120]; // Centro del mapa para incluir Alaska y el territorio continental
         const usBounds = L.latLngBounds(
             L.latLng(18.9111, -179.9999), // Esquina inferior izquierda (límite sur y oeste, incluyendo Alaska)
             L.latLng(71.5388, -66.9346)   // Esquina superior derecha (límite norte y este)
         );
 
-        // Inicializar el mapa centrado en Estados Unidos
-        const map = L.map('map').setView([50, -120], 3); // Zoom inicial 3 y vista centrada para incluir Alaska
+        // Inicializar el mapa centrado en una vista que incluya Alaska
+        const map = L.map('map').setView(usCenter, 3); // Zoom inicial 3
 
         // Añadir capa de OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
