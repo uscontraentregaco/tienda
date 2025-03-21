@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa Interactivo de Estados Unidos</title>
+    <title>Mapa Interactivo de Estados Unidos (incluyendo Alaska)</title>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
@@ -28,22 +28,22 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
-        // Coordenadas de Estados Unidos
-        const usCenter = [37.0902, -95.7129]; // Centro de Estados Unidos
+        // Coordenadas de Estados Unidos (incluyendo Alaska)
+        const usCenter = [37.0902, -95.7129]; // Centro de Estados Unidos (continental)
         const usBounds = L.latLngBounds(
-            L.latLng(24.3963, -125.0000), // Esquina inferior izquierda (límite sur y oeste)
-            L.latLng(49.3845, -66.9346)   // Esquina superior derecha (límite norte y este)
+            L.latLng(18.9111, -179.9999), // Esquina inferior izquierda (límite sur y oeste, incluyendo Alaska)
+            L.latLng(71.5388, -66.9346)   // Esquina superior derecha (límite norte y este)
         );
 
         // Inicializar el mapa centrado en Estados Unidos
-        const map = L.map('map').setView(usCenter, 5); // Zoom inicial 5
+        const map = L.map('map').setView(usCenter, 4); // Zoom inicial 4
 
         // Añadir capa de OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Establecer límites del mapa para Estados Unidos
+        // Establecer límites del mapa para Estados Unidos (incluyendo Alaska)
         map.setMaxBounds(usBounds); // Limita el desplazamiento a Estados Unidos
         map.on('drag', () => {
             if (!usBounds.contains(map.getCenter())) {
@@ -51,7 +51,7 @@
             }
         });
 
-        // Ejemplo de marcadores en Estados Unidos
+        // Ejemplo de marcadores en Estados Unidos (incluyendo Alaska)
         const markers = [
             {
                 name: "Nueva York",
@@ -82,6 +82,11 @@
                 name: "Las Vegas",
                 latlng: [36.1699, -115.1398], // Coordenadas de Las Vegas
                 url: "https://www.example.com/las-vegas" // Enlace de redirección
+            },
+            {
+                name: "Anchorage (Alaska)",
+                latlng: [61.2181, -149.9003], // Coordenadas de Anchorage, Alaska
+                url: "https://www.example.com/anchorage" // Enlace de redirección
             }
             // Añade más marcadores aquí
         ];
