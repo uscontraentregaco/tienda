@@ -36,7 +36,7 @@
         );
 
         // Inicializar el mapa centrado en Estados Unidos
-        const map = L.map('map').setView(usCenter, 4); // Zoom inicial 4
+        const map = L.map('map').setView([50, -120], 3); // Zoom inicial 3 y vista centrada para incluir Alaska
 
         // Añadir capa de OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
