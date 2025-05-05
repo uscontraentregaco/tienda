@@ -1,110 +1,515 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa Interactivo de Estados Unidos (incluyendo Alaska)</title>
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <title>Contraentregaco FZ - US Locations</title>
     <style>
-        /* Reset básico */
-        body, html {
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --background-color: #f9f9f9;
+            --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            height: 100%;
-            font-family: Arial, sans-serif;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        /* Contenedor del mapa */
-        #map {
+
+        body {
+            background-color: var(--background-color);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        p.subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .locations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .location-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .location-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .flag-container {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+        }
+
+        .flag-icon {
+            font-size: 4rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .location-info {
+            padding: 1.5rem 1rem;
+        }
+
+        .location-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .location-state {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .location-county {
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .search-container {
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #location-search {
             width: 100%;
-            height: 100vh; /* Ocupa toda la altura de la pantalla */
+            padding: 12px 20px;
+            border: 1px solid #ddd;
+            border-radius: 50px;
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        #location-search:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+            color: #777;
+        }
+
+        @media (max-width: 768px) {
+            .locations-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .flag-container {
+                height: 100px;
+            }
+
+            .flag-icon {
+                font-size: 3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .locations-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 1rem;
+            }
+
+            .location-info {
+                padding: 1rem 0.5rem;
+            }
+
+            .location-name {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Contenedor del mapa -->
-    <div id="map"></div>
+    <div class="container">
+        <header>
+            <h1>Contraentregaco FZ</h1>
+            <p class="subtitle">Select your location in the United States</p>
+        </header>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+        <div class="search-container">
+            <input type="text" id="location-search" placeholder="Search city, county or state..." aria-label="Search location">
+        </div>
+
+        <div class="locations-grid" id="locations-container">
+            <!-- Locations will be loaded here with JavaScript -->
+        </div>
+
+        <footer>
+            <p>bc1q9duznfnqynw2fjex9v826da0x8x3lncwpf8yaa</p>
+        </footer>
+    </div>
+
     <script>
-        // Coordenadas de Estados Unidos (incluyendo Alaska)
-        const usCenter = [50, -120]; // Centro del mapa para incluir Alaska y el territorio continental
-        const usBounds = L.latLngBounds(
-            L.latLng(18.9111, -179.9999), // Esquina inferior izquierda (límite sur y oeste, incluyendo Alaska)
-            L.latLng(71.5388, -66.9346)   // Esquina superior derecha (límite norte y este)
-        );
-
-        // Inicializar el mapa centrado en una vista que incluya Alaska
-        const map = L.map('map').setView(usCenter, 3); // Zoom inicial 3
-
-        // Añadir capa de OpenStreetMap
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
-        // Establecer límites del mapa para Estados Unidos (incluyendo Alaska)
-        map.setMaxBounds(usBounds); // Limita el desplazamiento a Estados Unidos
-        map.on('drag', () => {
-            if (!usBounds.contains(map.getCenter())) {
-                map.panInsideBounds(usBounds, { animate: true });
-            }
-        });
-
-        // Ejemplo de marcadores en Estados Unidos (incluyendo Alaska)
-        const markers = [
-            {
-                name: "Nueva York",
-                latlng: [40.7128, -74.0060], // Coordenadas de Nueva York
-                url: "https://www.example.com/nueva-york" // Enlace de redirección
-            },
-            {
-                name: "Los Ángeles",
-                latlng: [34.0522, -118.2437], // Coordenadas de Los Ángeles
-                url: "https://www.example.com/los-angeles" // Enlace de redirección
-            },
-            {
-                name: "Chicago",
-                latlng: [41.8781, -87.6298], // Coordenadas de Chicago
-                url: "https://www.example.com/chicago" // Enlace de redirección
-            },
-            {
-                name: "Houston",
-                latlng: [29.7604, -95.3698], // Coordenadas de Houston
-                url: "https://www.example.com/houston" // Enlace de redirección
-            },
-            {
-                name: "Miami",
-                latlng: [25.7617, -80.1918], // Coordenadas de Miami
-                url: "https://www.example.com/miami" // Enlace de redirección
-            },
-            {
-                name: "Las Vegas",
-                latlng: [36.1699, -115.1398], // Coordenadas de Las Vegas
-                url: "https://www.example.com/las-vegas" // Enlace de redirección
-            },
-            {
-                name: "Anchorage (Alaska)",
-                latlng: [61.2181, -149.9003], // Coordenadas de Anchorage, Alaska
-                url: "https://www.example.com/anchorage" // Enlace de redirección
-            }
-            // Añade más marcadores aquí
+        // List of US locations with states and counties
+        const locations = [
+            // Alabama
+            { "city": "Birmingham", "county": "Jefferson", "state": "Alabama", "url": "https://birminghamjeffersonal.contraentregaco.com" },
+            { "city": "Montgomery", "county": "Montgomery", "state": "Alabama", "url": "https://montgomerymontgomeryal.contraentregaco.com" },
+            { "city": "Mobile", "county": "Mobile", "state": "Alabama", "url": "https://mobilemobileal.contraentregaco.com" },
+            { "city": "Huntsville", "county": "Madison", "state": "Alabama", "url": "https://huntsvillemadisonal.contraentregaco.com" },
+            
+            // Alaska
+            { "city": "Anchorage", "county": "Anchorage", "state": "Alaska", "url": "https://anchorageanchorageak.contraentregaco.com" },
+            { "city": "Fairbanks", "county": "Fairbanks North Star", "state": "Alaska", "url": "https://fairbanksfairbanksnsak.contraentregaco.com" },
+            { "city": "Juneau", "county": "Juneau", "state": "Alaska", "url": "https://juneaujuneauak.contraentregaco.com" },
+            
+            // Arizona
+            { "city": "Phoenix", "county": "Maricopa", "state": "Arizona", "url": "https://phoenixmaricopaaz.contraentregaco.com" },
+            { "city": "Tucson", "county": "Pima", "state": "Arizona", "url": "https://tucsonpimaaz.contraentregaco.com" },
+            { "city": "Mesa", "county": "Maricopa", "state": "Arizona", "url": "https://mesamaricopaaz.contraentregaco.com" },
+            
+            // Arkansas
+            { "city": "Little Rock", "county": "Pulaski", "state": "Arkansas", "url": "https://littlerockpulaskiar.contraentregaco.com" },
+            { "city": "Fort Smith", "county": "Sebastian", "state": "Arkansas", "url": "https://fortsmithsebastianar.contraentregaco.com" },
+            { "city": "Fayetteville", "county": "Washington", "state": "Arkansas", "url": "https://fayettevillewashingtonar.contraentregaco.com" },
+            
+            // California
+            { "city": "Los Angeles", "county": "Los Angeles", "state": "California", "url": "https://losangeleslosangelesca.contraentregaco.com" },
+            { "city": "San Diego", "county": "San Diego", "state": "California", "url": "https://sandiegosandiegoca.contraentregaco.com" },
+            { "city": "San Jose", "county": "Santa Clara", "state": "California", "url": "https://sanjosesantaclaraca.contraentregaco.com" },
+            { "city": "San Francisco", "county": "San Francisco", "state": "California", "url": "https://sanfranciscosanfranciscoca.contraentregaco.com" },
+            { "city": "Sacramento", "county": "Sacramento", "state": "California", "url": "https://sacramentosacramentoca.contraentregaco.com" },
+            
+            // Colorado
+            { "city": "Denver", "county": "Denver", "state": "Colorado", "url": "https://denverdenverco.contraentregaco.com" },
+            { "city": "Colorado Springs", "county": "El Paso", "state": "Colorado", "url": "https://coloradospringselpasoco.contraentregaco.com" },
+            { "city": "Aurora", "county": "Arapahoe", "state": "Colorado", "url": "https://auroraarapahoeco.contraentregaco.com" },
+            
+            // Connecticut
+            { "city": "Bridgeport", "county": "Fairfield", "state": "Connecticut", "url": "https://bridgeportfairfieldct.contraentregaco.com" },
+            { "city": "New Haven", "county": "New Haven", "state": "Connecticut", "url": "https://newhavennewhavenct.contraentregaco.com" },
+            { "city": "Hartford", "county": "Hartford", "state": "Connecticut", "url": "https://hartfordhartfordct.contraentregaco.com" },
+            
+            // Delaware
+            { "city": "Wilmington", "county": "New Castle", "state": "Delaware", "url": "https://wilmingtonnewcastlede.contraentregaco.com" },
+            { "city": "Dover", "county": "Kent", "state": "Delaware", "url": "https://doverkentde.contraentregaco.com" },
+            { "city": "Newark", "county": "New Castle", "state": "Delaware", "url": "https://newarknewcastlede.contraentregaco.com" },
+            
+            // Florida
+            { "city": "Jacksonville", "county": "Duval", "state": "Florida", "url": "https://jacksonvilleduvalfl.contraentregaco.com" },
+            { "city": "Miami", "county": "Miami-Dade", "state": "Florida", "url": "https://miamimiamidadefl.contraentregaco.com" },
+            { "city": "Tampa", "county": "Hillsborough", "state": "Florida", "url": "https://tampahillsboroughfl.contraentregaco.com" },
+            { "city": "Orlando", "county": "Orange", "state": "Florida", "url": "https://orlandoorangefl.contraentregaco.com" },
+            { "city": "Tallahassee", "county": "Leon", "state": "Florida", "url": "https://tallahasseeleonfl.contraentregaco.com" },
+            
+            // Georgia
+            { "city": "Atlanta", "county": "Fulton", "state": "Georgia", "url": "https://atlantafultonga.contraentregaco.com" },
+            { "city": "Augusta", "county": "Richmond", "state": "Georgia", "url": "https://augustarichmondga.contraentregaco.com" },
+            { "city": "Columbus", "county": "Muscogee", "state": "Georgia", "url": "https://columbusmuscogeeaga.contraentregaco.com" },
+            { "city": "Savannah", "county": "Chatham", "state": "Georgia", "url": "https://savannahchathamga.contraentregaco.com" },
+            
+            // Hawaii
+            { "city": "Honolulu", "county": "Honolulu", "state": "Hawaii", "url": "https://honoluluhonoluluhi.contraentregaco.com" },
+            { "city": "Hilo", "county": "Hawaii", "state": "Hawaii", "url": "https://hilohawaiihi.contraentregaco.com" },
+            { "city": "Kailua", "county": "Honolulu", "state": "Hawaii", "url": "https://kailuahonoluluhi.contraentregaco.com" },
+            
+            // Idaho
+            { "city": "Boise", "county": "Ada", "state": "Idaho", "url": "https://boiseadaid.contraentregaco.com" },
+            { "city": "Meridian", "county": "Ada", "state": "Idaho", "url": "https://meridianadaid.contraentregaco.com" },
+            { "city": "Idaho Falls", "county": "Bonneville", "state": "Idaho", "url": "https://idahofallsbonnevilleid.contraentregaco.com" },
+            
+            // Illinois
+            { "city": "Chicago", "county": "Cook", "state": "Illinois", "url": "https://chicagocookil.contraentregaco.com" },
+            { "city": "Aurora", "county": "Kane", "state": "Illinois", "url": "https://aurorakaneil.contraentregaco.com" },
+            { "city": "Rockford", "county": "Winnebago", "state": "Illinois", "url": "https://rockfordwinnebagoil.contraentregaco.com" },
+            { "city": "Springfield", "county": "Sangamon", "state": "Illinois", "url": "https://springfieldsangamonil.contraentregaco.com" },
+            
+            // Indiana
+            { "city": "Indianapolis", "county": "Marion", "state": "Indiana", "url": "https://indianapolismarionin.contraentregaco.com" },
+            { "city": "Fort Wayne", "county": "Allen", "state": "Indiana", "url": "https://fortwayneallenin.contraentregaco.com" },
+            { "city": "Evansville", "county": "Vanderburgh", "state": "Indiana", "url": "https://evansvillevanderburghin.contraentregaco.com" },
+            
+            // Iowa
+            { "city": "Des Moines", "county": "Polk", "state": "Iowa", "url": "https://desmoinespolkia.contraentregaco.com" },
+            { "city": "Cedar Rapids", "county": "Linn", "state": "Iowa", "url": "https://cedarrapidslinnea.contraentregaco.com" },
+            { "city": "Davenport", "county": "Scott", "state": "Iowa", "url": "https://davenportscottia.contraentregaco.com" },
+            
+            // Kansas
+            { "city": "Wichita", "county": "Sedgwick", "state": "Kansas", "url": "https://wichitasedgwickks.contraentregaco.com" },
+            { "city": "Overland Park", "county": "Johnson", "state": "Kansas", "url": "https://overlandparkjohnsonks.contraentregaco.com" },
+            { "city": "Kansas City", "county": "Wyandotte", "state": "Kansas", "url": "https://kansascitywyandotteks.contraentregaco.com" },
+            
+            // Kentucky
+            { "city": "Louisville", "county": "Jefferson", "state": "Kentucky", "url": "https://louisvillejeffersonky.contraentregaco.com" },
+            { "city": "Lexington", "county": "Fayette", "state": "Kentucky", "url": "https://lexingtonfayetteky.contraentregaco.com" },
+            { "city": "Bowling Green", "county": "Warren", "state": "Kentucky", "url": "https://bowlinggreenwarrenky.contraentregaco.com" },
+            
+            // Louisiana
+            { "city": "New Orleans", "county": "Orleans", "state": "Louisiana", "url": "https://neworleansorleansla.contraentregaco.com" },
+            { "city": "Baton Rouge", "county": "East Baton Rouge", "state": "Louisiana", "url": "https://batonrougeeastbatonrougela.contraentregaco.com" },
+            { "city": "Shreveport", "county": "Caddo", "state": "Louisiana", "url": "https://shreveportcaddola.contraentregaco.com" },
+            
+            // Maine
+            { "city": "Portland", "county": "Cumberland", "state": "Maine", "url": "https://portlandcumberlandme.contraentregaco.com" },
+            { "city": "Lewiston", "county": "Androscoggin", "state": "Maine", "url": "https://lewistonandroscogginme.contraentregaco.com" },
+            { "city": "Bangor", "county": "Penobscot", "state": "Maine", "url": "https://bangorpenobscotme.contraentregaco.com" },
+            
+            // Maryland
+            { "city": "Baltimore", "county": "Baltimore City", "state": "Maryland", "url": "https://baltimorebaltimorecitymd.contraentregaco.com" },
+            { "city": "Columbia", "county": "Howard", "state": "Maryland", "url": "https://columbiahowardmd.contraentregaco.com" },
+            { "city": "Germantown", "county": "Montgomery", "state": "Maryland", "url": "https://germantownmontgomerymd.contraentregaco.com" },
+            
+            // Massachusetts
+            { "city": "Boston", "county": "Suffolk", "state": "Massachusetts", "url": "https://bostonsuffolkma.contraentregaco.com" },
+            { "city": "Worcester", "county": "Worcester", "state": "Massachusetts", "url": "https://worcesterworcesterma.contraentregaco.com" },
+            { "city": "Springfield", "county": "Hampden", "state": "Massachusetts", "url": "https://springfieldhampdenma.contraentregaco.com" },
+            
+            // Michigan
+            { "city": "Detroit", "county": "Wayne", "state": "Michigan", "url": "https://detroitwaynemi.contraentregaco.com" },
+            { "city": "Grand Rapids", "county": "Kent", "state": "Michigan", "url": "https://grandrapidskentmi.contraentregaco.com" },
+            { "city": "Warren", "county": "Macomb", "state": "Michigan", "url": "https://warrenmacombmi.contraentregaco.com" },
+            
+            // Minnesota
+            { "city": "Minneapolis", "county": "Hennepin", "state": "Minnesota", "url": "https://minneapolishennepinmn.contraentregaco.com" },
+            { "city": "Saint Paul", "county": "Ramsey", "state": "Minnesota", "url": "https://saintpaulramseymn.contraentregaco.com" },
+            { "city": "Rochester", "county": "Olmsted", "state": "Minnesota", "url": "https://rochestrolmstedmn.contraentregaco.com" },
+            
+            // Mississippi
+            { "city": "Jackson", "county": "Hinds", "state": "Mississippi", "url": "https://jacksonhindsms.contraentregaco.com" },
+            { "city": "Gulfport", "county": "Harrison", "state": "Mississippi", "url": "https://gulfportharrisonms.contraentregaco.com" },
+            { "city": "Southaven", "county": "DeSoto", "state": "Mississippi", "url": "https://southavendesotoms.contraentregaco.com" },
+            
+            // Missouri
+            { "city": "Kansas City", "county": "Jackson", "state": "Missouri", "url": "https://kansascityjacksonmo.contraentregaco.com" },
+            { "city": "Saint Louis", "county": "St. Louis City", "state": "Missouri", "url": "https://saintlouisstlouiscitymo.contraentregaco.com" },
+            { "city": "Springfield", "county": "Greene", "state": "Missouri", "url": "https://springfieldgreenemo.contraentregaco.com" },
+            
+            // Montana
+            { "city": "Billings", "county": "Yellowstone", "state": "Montana", "url": "https://billingsyellowstonemt.contraentregaco.com" },
+            { "city": "Missoula", "county": "Missoula", "state": "Montana", "url": "https://missoulamissoulamt.contraentregaco.com" },
+            { "city": "Great Falls", "county": "Cascade", "state": "Montana", "url": "https://greatfallscascademt.contraentregaco.com" },
+            
+            // Nebraska
+            { "city": "Omaha", "county": "Douglas", "state": "Nebraska", "url": "https://omahadouglasne.contraentregaco.com" },
+            { "city": "Lincoln", "county": "Lancaster", "state": "Nebraska", "url": "https://lincolnlancasterne.contraentregaco.com" },
+            { "city": "Bellevue", "county": "Sarpy", "state": "Nebraska", "url": "https://bellevuesarpyne.contraentregaco.com" },
+            
+            // Nevada
+            { "city": "Las Vegas", "county": "Clark", "state": "Nevada", "url": "https://lasvegasclarknv.contraentregaco.com" },
+            { "city": "Henderson", "county": "Clark", "state": "Nevada", "url": "https://hendersonclarknv.contraentregaco.com" },
+            { "city": "Reno", "county": "Washoe", "state": "Nevada", "url": "https://renowashoenv.contraentregaco.com" },
+            
+            // New Hampshire
+            { "city": "Manchester", "county": "Hillsborough", "state": "New Hampshire", "url": "https://manchesterhillsboroughnh.contraentregaco.com" },
+            { "city": "Nashua", "county": "Hillsborough", "state": "New Hampshire", "url": "https://nashuahillsboroughnh.contraentregaco.com" },
+            { "city": "Concord", "county": "Merrimack", "state": "New Hampshire", "url": "https://concordmerrimacknh.contraentregaco.com" },
+            
+            // New Jersey
+            { "city": "Newark", "county": "Essex", "state": "New Jersey", "url": "https://newarkessexnj.contraentregaco.com" },
+            { "city": "Jersey City", "county": "Hudson", "state": "New Jersey", "url": "https://jerseycityhudsonnj.contraentregaco.com" },
+            { "city": "Paterson", "county": "Passaic", "state": "New Jersey", "url": "https://patersonpassaicnj.contraentregaco.com" },
+            
+            // New Mexico
+            { "city": "Albuquerque", "county": "Bernalillo", "state": "New Mexico", "url": "https://albuquerquebernalillonm.contraentregaco.com" },
+            { "city": "Las Cruces", "county": "Doña Ana", "state": "New Mexico", "url": "https://lascrucesdonaananm.contraentregaco.com" },
+            { "city": "Rio Rancho", "county": "Sandoval", "state": "New Mexico", "url": "https://rioranchosandovalnm.contraentregaco.com" },
+            
+            // New York
+            { "city": "New York", "county": "New York", "state": "New York", "url": "https://newyorknewyorkny.contraentregaco.com" },
+            { "city": "Buffalo", "county": "Erie", "state": "New York", "url": "https://buffaloerieny.contraentregaco.com" },
+            { "city": "Rochester", "county": "Monroe", "state": "New York", "url": "https://rochestermonroeny.contraentregaco.com" },
+            { "city": "Yonkers", "county": "Westchester", "state": "New York", "url": "https://yonkerswestchesterny.contraentregaco.com" },
+            { "city": "Syracuse", "county": "Onondaga", "state": "New York", "url": "https://syracuseonondagany.contraentregaco.com" },
+            
+            // North Carolina
+            { "city": "Charlotte", "county": "Mecklenburg", "state": "North Carolina", "url": "https://charlottemecklenburgnc.contraentregaco.com" },
+            { "city": "Raleigh", "county": "Wake", "state": "North Carolina", "url": "https://raleighwakeenc.contraentregaco.com" },
+            { "city": "Greensboro", "county": "Guilford", "state": "North Carolina", "url": "https://greensboroguilfordnc.contraentregaco.com" },
+            { "city": "Durham", "county": "Durham", "state": "North Carolina", "url": "https://durhamdurhamnc.contraentregaco.com" },
+            
+            // North Dakota
+            { "city": "Fargo", "county": "Cass", "state": "North Dakota", "url": "https://fargocassnd.contraentregaco.com" },
+            { "city": "Bismarck", "county": "Burleigh", "state": "North Dakota", "url": "https://bismarckburleighnd.contraentregaco.com" },
+            { "city": "Grand Forks", "county": "Grand Forks", "state": "North Dakota", "url": "https://grandforksgrandforksnd.contraentregaco.com" },
+            
+            // Ohio
+            { "city": "Columbus", "county": "Franklin", "state": "Ohio", "url": "https://columbusfranklinoh.contraentregaco.com" },
+            { "city": "Cleveland", "county": "Cuyahoga", "state": "Ohio", "url": "https://clevelandcuyahogaoh.contraentregaco.com" },
+            { "city": "Cincinnati", "county": "Hamilton", "state": "Ohio", "url": "https://cincinnatihamiltonoh.contraentregaco.com" },
+            { "city": "Toledo", "county": "Lucas", "state": "Ohio", "url": "https://toledolucasoh.contraentregaco.com" },
+            { "city": "Akron", "county": "Summit", "state": "Ohio", "url": "https://akronsummitoh.contraentregaco.com" },
+            
+            // Oklahoma
+            { "city": "Oklahoma City", "county": "Oklahoma", "state": "Oklahoma", "url": "https://oklahomacityoklahomaok.contraentregaco.com" },
+            { "city": "Tulsa", "county": "Tulsa", "state": "Oklahoma", "url": "https://tulsatulsaok.contraentregaco.com" },
+            { "city": "Norman", "county": "Cleveland", "state": "Oklahoma", "url": "https://normanclevelandok.contraentregaco.com" },
+            
+            // Oregon
+            { "city": "Portland", "county": "Multnomah", "state": "Oregon", "url": "https://portlandmultnomahor.contraentregaco.com" },
+            { "city": "Salem", "county": "Marion", "state": "Oregon", "url": "https://salemmarionor.contraentregaco.com" },
+            { "city": "Eugene", "county": "Lane", "state": "Oregon", "url": "https://eugenelaneor.contraentregaco.com" },
+            
+            // Pennsylvania
+            { "city": "Philadelphia", "county": "Philadelphia", "state": "Pennsylvania", "url": "https://philadelphiaphiladelphiapa.contraentregaco.com" },
+            { "city": "Pittsburgh", "county": "Allegheny", "state": "Pennsylvania", "url": "https://pittsburghalleghenypa.contraentregaco.com" },
+            { "city": "Allentown", "county": "Lehigh", "state": "Pennsylvania", "url": "https://allentownlehighpa.contraentregaco.com" },
+            { "city": "Erie", "county": "Erie", "state": "Pennsylvania", "url": "https://erieeriepa.contraentregaco.com" },
+            
+            // Rhode Island
+            { "city": "Providence", "county": "Providence", "state": "Rhode Island", "url": "https://providenceprovidenceri.contraentregaco.com" },
+            { "city": "Warwick", "county": "Kent", "state": "Rhode Island", "url": "https://warwickkentri.contraentregaco.com" },
+            { "city": "Cranston", "county": "Providence", "state": "Rhode Island", "url": "https://cranstonprovidenceri.contraentregaco.com" },
+            
+            // South Carolina
+            { "city": "Columbia", "county": "Richland", "state": "South Carolina", "url": "https://columbiarichlandsc.contraentregaco.com" },
+            { "city": "Charleston", "county": "Charleston", "state": "South Carolina", "url": "https://charlestoncharlestonsc.contraentregaco.com" },
+            { "city": "North Charleston", "county": "Charleston", "state": "South Carolina", "url": "https://northcharlestoncharlestonsc.contraentregaco.com" },
+            
+            // South Dakota
+            { "city": "Sioux Falls", "county": "Minnehaha", "state": "South Dakota", "url": "https://siouxfallsminnehahasd.contraentregaco.com" },
+            { "city": "Rapid City", "county": "Pennington", "state": "South Dakota", "url": "https://rapidcitypenningtonsd.contraentregaco.com" },
+            { "city": "Aberdeen", "county": "Brown", "state": "South Dakota", "url": "https://aberdeenbrownsd.contraentregaco.com" },
+            
+            // Tennessee
+            { "city": "Nashville", "county": "Davidson", "state": "Tennessee", "url": "https://nashvilledavidsontn.contraentregaco.com" },
+            { "city": "Memphis", "county": "Shelby", "state": "Tennessee", "url": "https://memphisshelbytn.contraentregaco.com" },
+            { "city": "Knoxville", "county": "Knox", "state": "Tennessee", "url": "https://knoxvilleknoxtn.contraentregaco.com" },
+            { "city": "Chattanooga", "county": "Hamilton", "state": "Tennessee", "url": "https://chattanoogahamiltontn.contraentregaco.com" },
+            
+            // Texas
+            { "city": "Houston", "county": "Harris", "state": "Texas", "url": "https://houstonharristx.contraentregaco.com" },
+            { "city": "San Antonio", "county": "Bexar", "state": "Texas", "url": "https://sanantoniobexartx.contraentregaco.com" },
+            { "city": "Dallas", "county": "Dallas", "state": "Texas", "url": "https://dallasdallastx.contraentregaco.com" },
+            { "city": "Austin", "county": "Travis", "state": "Texas", "url": "https://austintravistx.contraentregaco.com" },
+            { "city": "Fort Worth", "county": "Tarrant", "state": "Texas", "url": "https://fortworthtarranttx.contraentregaco.com" },
+            { "city": "El Paso", "county": "El Paso", "state": "Texas", "url": "https://elpasoelpasotx.contraentregaco.com" },
+            
+            // Utah
+            { "city": "Salt Lake City", "county": "Salt Lake", "state": "Utah", "url": "https://saltlakecitysaltlakeut.contraentregaco.com" },
+            { "city": "West Valley City", "county": "Salt Lake", "state": "Utah", "url": "https://westvalleycitysaltlakeut.contraentregaco.com" },
+            { "city": "Provo", "county": "Utah", "state": "Utah", "url": "https://provoutahut.contraentregaco.com" },
+            
+            // Vermont
+            { "city": "Burlington", "county": "Chittenden", "state": "Vermont", "url": "https://burlingtonchittendenvt.contraentregaco.com" },
+            { "city": "South Burlington", "county": "Chittenden", "state": "Vermont", "url": "https://southburlingtonchittendenvt.contraentregaco.com" },
+            { "city": "Rutland", "county": "Rutland", "state": "Vermont", "url": "https://rutlandrutlandvt.contraentregaco.com" },
+            
+            // Virginia
+            { "city": "Virginia Beach", "county": "Virginia Beach City", "state": "Virginia", "url": "https://virginiabeachvirginiabeachcityva.contraentregaco.com" },
+            { "city": "Norfolk", "county": "Norfolk City", "state": "Virginia", "url": "https://norfolknorfolkcityva.contraentregaco.com" },
+            { "city": "Chesapeake", "county": "Chesapeake City", "state": "Virginia", "url": "https://chesapeakechesapeakecityva.contraentregaco.com" },
+            { "city": "Richmond", "county": "Richmond City", "state": "Virginia", "url": "https://richmondrichmondcityva.contraentregaco.com" },
+            { "city": "Arlington", "county": "Arlington", "state": "Virginia", "url": "https://arlingtonarlingtonva.contraentregaco.com" },
+            
+            // Washington
+            { "city": "Seattle", "county": "King", "state": "Washington", "url": "https://seattlekingwa.contraentregaco.com" },
+            { "city": "Spokane", "county": "Spokane", "state": "Washington", "url": "https://spokanespokanewa.contraentregaco.com" },
+            { "city": "Tacoma", "county": "Pierce", "state": "Washington", "url": "https://tacomapiercewa.contraentregaco.com" },
+            { "city": "Vancouver", "county": "Clark", "state": "Washington", "url": "https://vancouverclarkwa.contraentregaco.com" },
+            
+            // West Virginia
+            { "city": "Charleston", "county": "Kanawha", "state": "West Virginia", "url": "https://charlestonkanawhawv.contraentregaco.com" },
+            { "city": "Huntington", "county": "Cabell", "state": "West Virginia", "url": "https://huntingtoncabellwv.contraentregaco.com" },
+            { "city": "Morgantown", "county": "Monongalia", "state": "West Virginia", "url": "https://morgantownmonongaliawv.contraentregaco.com" },
+            
+            // Wisconsin
+            { "city": "Milwaukee", "county": "Milwaukee", "state": "Wisconsin", "url": "https://milwaukeemilwaukeewi.contraentregaco.com" },
+            { "city": "Madison", "county": "Dane", "state": "Wisconsin", "url": "https://madisondanewi.contraentregaco.com" },
+            { "city": "Green Bay", "county": "Brown", "state": "Wisconsin", "url": "https://greenbaybrownwi.contraentregaco.com" },
+            
+            // Wyoming
+            { "city": "Cheyenne", "county": "Laramie", "state": "Wyoming", "url": "https://cheyennelaramiewy.contraentregaco.com" },
+            { "city": "Casper", "county": "Natrona", "state": "Wyoming", "url": "https://caspernatronawy.contraentregaco.com" },
+            { "city": "Laramie", "county": "Albany", "state": "Wyoming", "url": "https://laramiealbanywy.contraentregaco.com" }
         ];
 
-        // Añadir marcadores al mapa
-        markers.forEach(marker => {
-            const { name, latlng, url } = marker;
-            L.marker(latlng)
-                .addTo(map)
-                .bindPopup(`<b>${name}</b><br><a href="${url}" target="_blank">Más información</a>`)
-                .on('click', () => {
-                    window.open(url, '_blank'); // Abrir enlace en una nueva pestaña
-                });
-        });
+        // Function to render locations
+        function renderLocations(locationList) {
+            const container = document.getElementById('locations-container');
+            container.innerHTML = '';
 
-        // Asegurar que el mapa se redimensione correctamente
-        window.addEventListener('resize', () => {
-            map.invalidateSize();
+            locationList.forEach(location => {
+                const locationCard = document.createElement('div');
+                locationCard.className = 'location-card';
+                locationCard.innerHTML = `
+                    <div class="flag-container">
+                        <span class="flag-icon">${location.state.charAt(0)}${location.city.charAt(0)}</span>
+                    </div>
+                    <div class="location-info">
+                        <div class="location-name">${location.city}</div>
+                        <div class="location-county">${location.county} County</div>
+                        <div class="location-state">${location.state}</div>
+                    </div>
+                `;
+                
+                locationCard.addEventListener('click', () => {
+                    window.location.href = location.url;
+                });
+
+                container.appendChild(locationCard);
+            });
+        }
+
+        // Function to search locations
+        function searchLocations() {
+            const searchTerm = document.getElementById('location-search').value.toLowerCase();
+            const filteredLocations = locations.filter(location => 
+                location.city.toLowerCase().includes(searchTerm) || 
+                location.county.toLowerCase().includes(searchTerm) ||
+                location.state.toLowerCase().includes(searchTerm)
+            );
+            renderLocations(filteredLocations);
+        }
+
+        // Event listeners
+        document.getElementById('location-search').addEventListener('input', searchLocations);
+
+        // Render all locations when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLocations(locations);
         });
     </script>
 </body>
