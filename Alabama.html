@@ -1,40 +1,56 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kali Linux Terminal</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #1e1e1e;
-            color: white;
-            font-family: monospace;
-        }
-        #terminal {
-            width: 90%;
-            max-width: 800px;
-            height: 80vh;
-            background-color: black;
-            overflow: auto;
-            padding: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alpine Linux Emulator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+    header {
+      background-color: #0078d7;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    iframe {
+      width: 100%;
+      height: 90%;
+      border: none;
+      background-color: black;
+    }
+    footer {
+      background-color: #333;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+    }
+  </style>
 </head>
 <body>
-    <div id="terminal"></div>
-    <script src="https://bellard.org/bpg/JS/Linux.js"></script>
-    <script>
-        // Inicializa el emulador de Kali Linux
-        const terminal = document.getElementById('terminal');
-        const jsLinux = new JSLinux(terminal);
-        jsLinux.start();
-    </script>
+  <header>
+    <h1>Alpine Linux in the Browser</h1>
+    <p>Run and explore all commands of Alpine Linux using WebAssembly</p>
+  </header>
+  <main>
+    <iframe src="https://bellard.org/jslinux/vm.html?url=alpine-x86.cfg" title="Alpine Linux Emulator"></iframe>
+  </main>
+  <footer>
+    <p>&copy; 2025 - Alpine Linux Emulator Powered by JSLinux</p>
+  </footer>
 </body>
 </html>
